@@ -1,0 +1,23 @@
+# Cloud Run Container for Isolated MedQuAD MCP Microservice (SSE + JSON-RPC)
+FROM python:3.11-slim
+
+WORKDIR /code
+
+# Install high-performance package manager
+RUN pip install --no-cache-dir uv==0.8.13
+
+# Install dependencies
+COPY pyproject.toml README.md uv.lock* ./
+COPY app ./app
+
+RUN uv sync --frozen
+
+# Cloud Run runtime environment variables
+ENV PORT=8080
+ENV PYTHONUNBUFFERED=1
+ENV MCP_TRANSPORT=sse
+
+EXPOSE 8080
+
+# Execute FastMCP Server with SSE transport on Cloud Run
+CMD ["uv", "run", "python", "-m", "app.mcp.server", "--sse"]

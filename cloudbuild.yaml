@@ -1,0 +1,47 @@
+steps:
+  # Quality Gate 1: Code Quality & Linting
+  - name: 'python:3.11-slim'
+    id: 'lint-quality-gate'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        pip install --no-cache-dir uv==0.8.13
+        uv sync --frozen
+        uv run ruff check .
+
+  # Quality Gate 2: Safety, Guardrails & Scope Lock Verification
+  - name: 'python:3.11-slim'
+    id: 'safety-scope-lock-gate'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        pip install --no-cache-dir uv==0.8.13
+        uv sync --frozen
+        uv run pytest tests/unit/test_scope_lock.py
+
+  # Quality Gate 3: Unit Test Suite (Supervisor-Worker Hierarchy & MCP)
+  - name: 'python:3.11-slim'
+    id: 'unit-test-suite-gate'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        pip install --no-cache-dir uv==0.8.13
+        uv sync --frozen
+        uv run pytest tests/unit
+
+  # Quality Gate 4: Clinical Retrieval Recall Quality Gate (>= 90% Recall)
+  - name: 'python:3.11-slim'
+    id: 'retrieval-recall-quality-gate'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        pip install --no-cache-dir uv==0.8.13
+        uv sync --frozen
+        uv run python scripts/verify_retrieval.py
+
+options:
+  logging: CLOUD_LOGGING_ONLY
