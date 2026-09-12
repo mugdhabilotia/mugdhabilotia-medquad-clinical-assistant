@@ -42,7 +42,26 @@ class SecretManagerResolver:
     ) -> str | None:
         if secret_id in self._cache:
             return self._cache[secret_id]
-        val = os.environ.get(secret_id, default)
+        val = os.environ.get(secret_id)
+        if val is None:
+            try:
+                from google.cloud import secretmanager
+
+                p_id = (
+                    project_id
+                    or os.getenv("GOOGLE_CLOUD_PROJECT")
+                    or os.getenv("GCP_PROJECT_ID", "medquad")
+                )
+                client = secretmanager.SecretManagerServiceClient()
+                name = f"projects/{p_id}/secrets/{secret_id}/versions/{version_id}"
+                response = client.access_secret_version(request={"name": name})
+                val = response.payload.data.decode("UTF-8")
+                logger.info(f"Retrieved secret '{secret_id}' from GCP Secret Manager.")
+            except Exception as exc:
+                logger.debug(
+                    f"Direct GCP Secret Manager lookup for '{secret_id}' fallback failed: {exc}"
+                )
+                val = default
         if val is not None:
             self._cache[secret_id] = val
         return val
@@ -57,5 +76,6 @@ def get_secret_resolver() -> SecretManagerResolver:
 
 
 def get_runtime_api_token(token_name: str, default: str = "") -> str:
-    """Retrieves secret injected as an environment variable by Cloud Run / Cloud Console."""
-    return os.getenv(token_name, default)
+    """Retrieves secret injected as an environment variable or direct from GCP Secret Manager."""
+    secret = get_secret_resolver().get_secret(token_name, default=default)
+    return secret if secret is not None else default

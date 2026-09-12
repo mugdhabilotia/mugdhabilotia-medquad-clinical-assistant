@@ -45,7 +45,7 @@ def test_supervisor_worker_topology():
     # 3. Reviewer Subagent (Worker)
     assert reviewer_agent.name == "reviewer_agent"
     assert reviewer_agent.model.model == REVIEWER_MODEL
-    assert REVIEWER_MODEL == "gemini-2.5-flash"
+    assert REVIEWER_MODEL in ["gemini-2.5-flash", "gemini-2.5-flash"]
     assert reviewer_subagent is reviewer_agent
 
 

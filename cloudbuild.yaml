@@ -12,14 +12,14 @@ steps:
 
   # Quality Gate 2: Safety, Guardrails & Scope Lock Verification
   - name: 'python:3.11-slim'
-    id: 'safety-scope-lock-gate'
+    id: 'safety-guardrails-gate'
     entrypoint: 'sh'
     args:
       - '-c'
       - |
         pip install --no-cache-dir uv==0.8.13
         uv sync --frozen
-        uv run pytest tests/unit/test_scope_lock.py
+        uv run pytest tests/unit/test_scope_lock.py tests/unit/test_model_armor.py
 
   # Quality Gate 3: Unit Test Suite (Supervisor-Worker Hierarchy & MCP)
   - name: 'python:3.11-slim'

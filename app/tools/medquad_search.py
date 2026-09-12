@@ -135,6 +135,22 @@ def search_medquad_corpus(
     }
 
 
+def get_vertex_ai_search_tool() -> Any:
+    """Instantiates the native Google Cloud ADK VertexAiSearchTool.
+
+    Directly leverages the Google Cloud Agent Builder / Vertex AI Search console datastore
+    rather than relying on custom client classes.
+    """
+    from google.adk.tools import VertexAiSearchTool
+
+    p_id = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GCP_PROJECT_ID", "medquad")
+    loc = os.getenv("GCP_LOCATION", "global")
+    ds_id = os.getenv("VERTEX_SEARCH_DATASTORE_ID", "medquad-grounding-corpus1")
+    full_ds_path = f"projects/{p_id}/locations/{loc}/collections/default_collection/dataStores/{ds_id}"
+
+    return VertexAiSearchTool(data_store_id=full_ds_path)
+
+
 if __name__ == "__main__":
     from app.mcp.server import mcp_server
 

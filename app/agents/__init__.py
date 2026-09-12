@@ -25,29 +25,23 @@ from app.agents.researcher_agent import (
     RESEARCHER_MODEL,
     ResearchOutput,
     _fetch_id_token,
-    create_researcher_agent,
     dynamic_auth_httpx_client_factory,
     get_mcp_headers,
     get_researcher_mcp_toolset,
     log_response,
     researcher_agent,
-    researcher_subagent,
 )
 from app.agents.reviewer_agent import (
     REVIEWER_INSTRUCTION,
     REVIEWER_MODEL,
     AuditVerdict,
     ReviewOutput,
-    create_reviewer_agent,
     reviewer_agent,
-    reviewer_subagent,
 )
 from app.agents.supervisor_agent import (
     SUPERVISOR_INSTRUCTION,
     SUPERVISOR_MODEL,
-    create_supervisor_agent,
-    root_agent,
-    supervisor_agent,
+    orchestrator_agent,
 )
 
 __all__ = [
@@ -61,17 +55,11 @@ __all__ = [
     "ResearchOutput",
     "ReviewOutput",
     "_fetch_id_token",
-    "create_researcher_agent",
-    "create_reviewer_agent",
-    "create_supervisor_agent",
     "dynamic_auth_httpx_client_factory",
     "get_mcp_headers",
     "get_researcher_mcp_toolset",
     "log_response",
+    "orchestrator_agent",
     "researcher_agent",
-    "researcher_subagent",
     "reviewer_agent",
-    "reviewer_subagent",
-    "root_agent",
-    "supervisor_agent",
 ]

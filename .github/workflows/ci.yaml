@@ -31,9 +31,9 @@ jobs:
         run: |
           uv run ruff check .
 
-      - name: "Quality Gate 2: Safe Refusal Scope Lock & Guardrails"
+      - name: "Quality Gate 2: Safe Refusal Scope Lock & Model Armor Guardrails"
         run: |
-          uv run pytest tests/unit/test_scope_lock.py
+          uv run pytest tests/unit/test_scope_lock.py tests/unit/test_model_armor.py
 
       - name: "Quality Gate 3: Unit Test Suite (Supervisor-Worker & MCP)"
         run: |

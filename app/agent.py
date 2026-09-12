@@ -21,48 +21,31 @@ Coordinates the decoupled Supervisor-Worker topology by importing modular subage
 """
 
 from __future__ import annotations
-
+from google.adk.agents.context_cache_config import ContextCacheConfig
 from google.adk.apps import App
 
 from app.agents.researcher_agent import (
     RESEARCHER_MODEL,
-    create_researcher_agent,
     researcher_agent,
-    researcher_subagent,
 )
 from app.agents.reviewer_agent import (
     REVIEWER_MODEL,
-    create_reviewer_agent,
     reviewer_agent,
-    reviewer_subagent,
 )
 from app.agents.supervisor_agent import (
     SUPERVISOR_MODEL,
-    create_supervisor_agent,
-    root_agent,
-    supervisor_agent,
+    orchestrator_agent,
 )
 
 # =====================================================================
 # ADK Application Entrypoint
 # =====================================================================
 app = App(
-    root_agent=root_agent,
+    root_agent=orchestrator_agent,
     name="medquad-agent",
+    context_cache_config=ContextCacheConfig(
+        ttl_seconds=3600,     # 1 hour TTL
+        cache_intervals=20,   # Keep cache across 20 turns
+        min_tokens=2048,
+    ),
 )
-
-__all__ = [
-    "RESEARCHER_MODEL",
-    "REVIEWER_MODEL",
-    "SUPERVISOR_MODEL",
-    "app",
-    "create_researcher_agent",
-    "create_reviewer_agent",
-    "create_supervisor_agent",
-    "researcher_agent",
-    "researcher_subagent",
-    "reviewer_agent",
-    "reviewer_subagent",
-    "root_agent",
-    "supervisor_agent",
-]

@@ -26,7 +26,7 @@ logger = logging.getLogger("verify_cloud_sql")
 
 INSTANCE = os.getenv("CLOUD_SQL_CONNECTION_NAME", "medquad:us-central1:medquad-postgres")
 DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASS = os.getenv("DB_PASSWORD", "MedQuAD_Pg2026!Secure")
+DB_PASS = os.getenv("DB_PASSWORD", "MedQuAD")
 DB_NAME = os.getenv("DB_NAME", "medquad_clinical")
 
 

@@ -128,7 +128,7 @@ def test_mcp_server_registration_and_sse_app():
     assert db_res["status"] == "RECORD_FOUND"
 
 
-def test_adk_mcp_toolset_initialization():
+def test_adk_mcp_toolset_initialization(monkeypatch):
     """Verify ADK McpToolset dynamic discovery client initialization with SSE connection params."""
     toolset = create_remote_mcp_toolset(
         sse_endpoint_url="https://medquad-mcp-server-uc.a.run.app/sse",
@@ -143,5 +143,7 @@ def test_adk_mcp_toolset_initialization():
     )
 
     # Test native ADK tools fallback
+    monkeypatch.delenv("MCP_SERVER_URL", raising=False)
+    monkeypatch.delenv("CLOUD_RUN_MCP_URL", raising=False)
     native_tools = get_clinical_tools()
     assert len(native_tools) == 2

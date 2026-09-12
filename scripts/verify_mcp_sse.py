@@ -10,12 +10,7 @@ and JSON-RPC 2.0:
 """
 
 import asyncio
-import json
 import logging
-import os
-import sys
-import time
-from typing import Any
 
 import httpx
 import uvicorn
@@ -128,8 +123,7 @@ async def run_mcp_verification():
                 )
 
                 # 3. Test Tool 1: Vertex AI Search Tool
-                logger.info("
---- Testing Vertex AI Search Tool (search_medquad_corpus) ---")
+                logger.info("--- Testing Vertex AI Search Tool (search_medquad_corpus) ---")
                 from app.mcp.server import search_medquad_corpus
                 search_res = search_medquad_corpus(
                     query="COPD first-line management",
@@ -150,8 +144,7 @@ async def run_mcp_verification():
                 assert c0.get("url"), "Missing citation url"
 
                 # 4. Test Tool 2: Mock Clinical DB Tool (Standard Patient EHR lookup)
-                logger.info("
---- Testing Mock Clinical DB Tool (Patient Brief Lookup) ---")
+                logger.info("--- Testing Mock Clinical DB Tool (Patient Brief Lookup) ---")
                 from app.mcp.server import query_mock_clinical_db
                 pt_res = query_mock_clinical_db(patient_id_or_mrn="PT-10492")
                 logger.info(f"Clinical DB Status: {pt_res.get('status')}")
@@ -160,14 +153,13 @@ async def run_mcp_verification():
                 logger.info(f"  [+] Patient Name:   {demo.get('name')} ({pt_res.get('patient_id')})")
                 logger.info(f"  [+] Conditions:     {[c.get('name') for c in record.get('conditions', [])]}")
                 logger.info(f"  [+] Medications:    {[m.get('drug') for m in record.get('medications', [])]}")
-                logger.info(f"  [+] Lab Panels:     {[l.get('test') for l in record.get('lab_results', [])[:2]]}")
+                logger.info(f"  [+] Lab Panels:     {[lab.get('test') for lab in record.get('lab_results', [])[:2]]}")
                 logger.info(f"  [+] Vital Signs:    {record.get('vital_signs')}")
                 assert pt_res.get("status") == "RECORD_FOUND"
                 assert "vital_signs" in record
 
                 # 5. Test Tool 2: Mock Clinical DB Tool (Parameterized Read-Only SQL Query against Cloud SQL)
-                logger.info("
---- Testing Mock Clinical DB Tool (Parameterized Read-Only SQL Query) ---")
+                logger.info("--- Testing Mock Clinical DB Tool (Parameterized Read-Only SQL Query) ---")
                 sql = "SELECT patient_id, name, mrn, vital_signs FROM mock_patient_records WHERE patient_id = $1"
                 sql_res = query_mock_clinical_db(
                     sql_query=sql,
@@ -182,16 +174,14 @@ async def run_mcp_verification():
                 assert rows[0].get("name") == "Eleanor Vance"
 
                 # 6. Test Security Guardrail (Rejection of Non-Read-Only Query)
-                logger.info("
---- Testing Security Guardrail (Rejection of Destructive Query) ---")
+                logger.info("--- Testing Security Guardrail (Rejection of Destructive Query) ---")
                 bad_sql = "DROP TABLE mock_patient_records"
                 bad_res = query_mock_clinical_db(sql_query=bad_sql)
                 logger.info(f"Destructive Query Status: {bad_res.get('status')}")
                 logger.info(f"Rejection Message:        {bad_res.get('error')}")
                 assert bad_res.get("status") == "ERROR_SECURITY_VIOLATION"
 
-                logger.info("
-==================================================================")
+                logger.info("==================================================================")
                 logger.info("MCP MICROSERVICE VERIFICATION: ALL 6 CHECKS PASSED (100%)")
                 logger.info("  1. Server-Sent Events (SSE) stream established successfully")
                 logger.info("  2. Container /healthz probe returns healthy status")

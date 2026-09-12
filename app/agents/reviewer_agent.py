@@ -152,16 +152,9 @@ You operate strictly under the following Clinical Verification Protocol:
 # =====================================================================
 # 3. ADK 2.0 Subagent Definition
 # =====================================================================
-def create_reviewer_agent(
-    tools: list[Any] | None = None,
-    name: str = "reviewer_subagent",
-) -> Agent:
-    """Instantiates the Google ADK 2.0 Reviewer Subagent configured with task mode
 
-    and structured output schema.
-    """
-    return Agent(
-        name=name,
+reviewer_agent = Agent(
+        name="reviewer_agent",
         model=Gemini(
             model=REVIEWER_MODEL,
             retry_options=types.HttpRetryOptions(attempts=3),
@@ -173,10 +166,4 @@ def create_reviewer_agent(
         instruction=REVIEWER_INSTRUCTION,
         mode="task",
         output_schema=ReviewOutput,
-        tools=tools or [],
     )
-
-
-# Canonical subagent instance
-reviewer_agent = create_reviewer_agent(name="reviewer_agent")
-reviewer_subagent = reviewer_agent

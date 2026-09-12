@@ -44,6 +44,13 @@ htmlcov/
 .ruff_cache/
 .mypy_cache/
 
+# Infrastructure & Terraform State
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
 # OS & Editor
 .DS_Store
 .DS_Store?

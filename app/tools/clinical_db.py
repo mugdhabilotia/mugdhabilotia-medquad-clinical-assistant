@@ -6,6 +6,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from app.mcp.secrets import get_secret_resolver
+
 load_dotenv()
 logger = logging.getLogger("medquad.clinical_db")
 
@@ -324,7 +326,12 @@ def execute_readonly_sql_query(
                     instance_name,
                     "asyncpg",
                     user=os.getenv("DB_USER", "postgres"),
-                    password=os.getenv("DB_PASSWORD", "MedQuAD_Pg2026!Secure"),
+                    password=get_secret_resolver().get_secret(
+                        "DB_PASSWORD",
+                        default=get_secret_resolver().get_secret(
+                            "EHR_DB_PASSWORD", default=None
+                        ),
+                    ),
                     db=os.getenv("DB_NAME", "medquad_clinical"),
                 )
                 try:
@@ -388,6 +395,7 @@ def query_mock_clinical_db(
     query_type: str = "summary",
     sql_query: str | None = None,
     params: list[Any] | None = None,
+    domains: list[str] | None = None,
 ) -> dict[str, Any]:
     """Queries simulated PostgreSQL electronic health records (EHR) for patient data.
 
@@ -401,6 +409,7 @@ def query_mock_clinical_db(
         query_type: The scope of inquiry ('summary', 'labs', 'medications', 'cohort').
         sql_query: Optional parameterized read-only SELECT query against PostgreSQL.
         params: Optional query parameters for parameterized execution.
+        domains: Optional list of specific EHR domains to filter (e.g. demographics, conditions, medications).
 
     Returns:
         A dictionary containing the clinical records or query results from PostgreSQL.
@@ -441,6 +450,8 @@ def query_mock_clinical_db(
                         return {"status": "RECORD_FOUND", "patient_id": row["patient_id"], "lab_results": record["lab_results"]}
                     if query_type == "medications":
                         return {"status": "RECORD_FOUND", "patient_id": row["patient_id"], "medications": record["medications"]}
+                    if domains:
+                        record = {k: v for k, v in record.items() if k in domains or k == "demographics"}
                     return {"status": "RECORD_FOUND", "patient_id": row["patient_id"], "record": record}
             except Exception as exc:
                 logger.warning(f"Cloud SQL patient lookup encountered: {exc}. Falling back to in-memory records.")
@@ -452,7 +463,10 @@ def query_mock_clinical_db(
                     return {"status": "RECORD_FOUND", "patient_id": pid, "lab_results": record["lab_results"]}
                 if query_type == "medications":
                     return {"status": "RECORD_FOUND", "patient_id": pid, "medications": record["medications"]}
-                return {"status": "RECORD_FOUND", "patient_id": pid, "record": record}
+                rec = record
+                if domains:
+                    rec = {k: v for k, v in record.items() if k in domains or k == "demographics"}
+                return {"status": "RECORD_FOUND", "patient_id": pid, "record": rec}
         return {
             "status": "NOT_FOUND",
             "message": f"No patient matching '{patient_id_or_mrn}' in PostgreSQL clinical DB.",

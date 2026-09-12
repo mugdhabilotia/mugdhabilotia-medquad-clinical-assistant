@@ -94,7 +94,7 @@ def test_reviewer_agent_definition():
     assert reviewer_agent.mode == "task"
     assert reviewer_agent.output_schema == ReviewOutput
     assert reviewer_agent.model.model == REVIEWER_MODEL
-    assert REVIEWER_MODEL == "gemini-2.5-flash"
+    assert REVIEWER_MODEL in ["gemini-2.5-flash", "gemini-2.5-flash"]
     assert reviewer_subagent is reviewer_agent
 
     # Verify task-mode automatically equips FinishTaskTool

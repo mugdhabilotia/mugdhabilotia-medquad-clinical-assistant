@@ -157,7 +157,7 @@ def run_retrieval_verification(
     top_k: int = 3,
 ) -> tuple[bool, float, list[BenchmarkResult]]:
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GCP_PROJECT_ID", "medquad")
-    datastore_id = os.getenv("VERTEX_SEARCH_DATASTORE_ID", "medquad-grounding-corpus")
+    datastore_id = os.getenv("VERTEX_SEARCH_DATASTORE_ID", "medquad-grounding-corpus1")
     location = os.getenv("GCP_LOCATION", "global")
 
     logger.info("==================================================================")

@@ -19,6 +19,37 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class MedicalSearchInput(BaseModel):
+    """Strict input schema for medical retrieval queries according to Sprint 3 specifications."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(
+        ...,
+        description="Clinical keyword or natural language query",
+        min_length=3,
+        max_length=300,
+    )
+    max_chunks: int = Field(
+        default=5,
+        ge=1,
+        le=10,
+        description="Maximum count of grounded chunks to retrieve (between 1 and 10)",
+    )
+
+
+class PatientQueryInput(BaseModel):
+    """Strict input schema for simulated EHR patient record queries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str = Field(
+        ...,
+        pattern=r"^(PAT|PT)-[0-9]{5}$",
+        description="Simulated EHR patient ID (e.g. PAT-10492 or PT-10492)",
+    )
+
+
 class MedQuADSearchInput(BaseModel):
     """Pydantic schema enforcing strict parameter bounds for MedQuAD semantic retrieval."""
 
@@ -72,6 +103,15 @@ class ClinicalDBQueryInput(BaseModel):
             "vital_signs",
         ],
         description="Specific EHR clinical data domains to query",
+    )
+    search_term: str | None = Field(
+        default=None,
+        max_length=200,
+        description="Optional clinical keyword or condition to search across patient cohort",
+    )
+    query_type: str = Field(
+        default="summary",
+        description="Scope of clinical inquiry ('summary', 'labs', 'medications', 'cohort')",
     )
 
 
